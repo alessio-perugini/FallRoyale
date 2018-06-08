@@ -11,7 +11,7 @@ if ($user->login($username, $password)) {
     
     if ($user->referral == null) {
         $user->referral = crea_referral();
-        $utils->query("UPDATE utenti SET referral = ?", array("referral" => $user->referral ), false);
+        $utils->query("UPDATE utenti SET referral = ? WHERE username = ?", array("referral" => $user->referral, "user" => $username ), false);
     }
         
     $output = array('login' => true, 'season' =>  $user->season, 'soldi' =>  $user->money, 'score' => $user->score , 'referral' => $user->referral, 'salt' => $user->salt, 'player_s' => $user->selected_player, "bus_s" => $user->selected_bus, "nazione" => $user->nazione);
