@@ -1,0 +1,6 @@
+
+{
+    //"phpformatter.pharPath": "D:/xampp/php/php-cs-fixer-v2.phar",
+    "php-cs-fixer.executablePath": "D:/xampp/php/php-cs-fixer-v2.phar",
+    "php.validate.executablePath": "D:/xampp/php/php.exe"
+}
