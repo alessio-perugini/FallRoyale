@@ -119,17 +119,6 @@ require_once('includes/config.php');
             </div>
             <hr>            
         </form>
-
-        <center><b>ottieniClassificaNazione</b></center>
-        <form role="form" method="post" action="ottieniClassificaNazione.php" autocomplete="off">
-            <div class="form-group">
-                <input type="text" name="nazione" id="nazione" class="form-control input-lg" placeholder="nazione" value="IT">
-            </div>
-            <div class="row">
-                <div class="col-xs-6 col-md-6"><input type="submit" name="submit" value="Testa" class="btn btn-primary btn-block btn-lg"></div>
-            </div>
-            <hr>            
-        </form>
         
         <center><b>getNews</b></center>
         <form role="form" method="post" action="getNews.php" autocomplete="off">

@@ -29,23 +29,21 @@ function createUser($username, $password, $dispositivo, $nazione, $versione, $re
 {
     $salt = $GLOBALS['user']->generateSalt();
     $codice_ref_personale = crea_referral();
-    if ($stmt = $GLOBALS['connessione']->prepare("INSERT INTO utenti (username, password, dispositivo, salt, nazione_fk, referral) VALUES (?, ?, ?, ?, ?, ?)")) {
-        $stmt->bind_param('ssssss', $username, $password, $dispositivo, $salt, $nazione, $codice_ref_personale);
-        if ($stmt->execute()) {
-            if ($referral_code != '') {
-                redeem_referral($username, $referral_code);
-            }
-            createScore($username, $password, $versione, $dispositivo);
-            createDefaultItem($username, $password);
-            setDefaultItems($username, $password);
-            $GLOBALS['user']->setVersioneUser($versione, $username, $password, $dispositivo);
-            return array('salt' => $salt, 'referral' => $codice_ref_personale);
-        } else {
-            return '-1';
+
+    $query = "INSERT INTO utenti (username, password, dispositivo, salt, nazione_fk, referral) VALUES (?, ?, ?, ?, ?, ?)";
+
+    if ($GLOBALS['utils']->query($query, array('username' => $username, 'password' => $password,'dispositivo' => $dispositivo,'salt' => $salt,'nazione' => $nazione,'codice_ref_personale' => $codice_ref_personale), false)) {
+        if ($referral_code != '') {
+            redeem_referral($username, $referral_code);
         }
-    } else {
-        return '-1';
+        createScore($username, $password, $versione, $dispositivo);
+        createDefaultItem($username, $password);
+        setDefaultItems($username, $password);
+        $GLOBALS['user']->setVersioneUser($versione, $username, $password, $dispositivo);
+        return array('salt' => $salt, 'referral' => $codice_ref_personale);
     }
+
+    return "-1";
 }
 
 function createDefaultItem($username, $password)
