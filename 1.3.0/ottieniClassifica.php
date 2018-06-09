@@ -1,5 +1,5 @@
 <?php require_once('includes/config.php');
-header("Content-Type: application/json; charset=UTF-8");
+//header("Content-Type: application/json; charset=UTF-8");
 
 $tipo = (isset($_POST['tipo'])) ? $_POST['tipo'] : 'globale';
 $nazione = (isset($_POST['nazione'])) ? $_POST['nazione'] : '';

@@ -15,29 +15,29 @@ class user
     public function login($username, $password)
     {
         $query = "SELECT user.id, user.soldi, user.salt, user.referral AS referral, seas.id_s AS seasonc,(SELECT items.codice AS player_c FROM item_acquistati, items, selected_items WHERE item_acquistati.id_item_fk = items.id AND selected_items.player = item_acquistati.id AND selected_items.id_utente_fk = user.id) AS player, (SELECT items.codice AS bus_c FROM item_acquistati, items, selected_items WHERE item_acquistati.id_item_fk = items.id AND selected_items.bus = item_acquistati.id AND selected_items.id_utente_fk = user.id) AS bus, Ifnull((SELECT punteggi.valore FROM punteggi WHERE punteggi.id_utentefk = user.id AND punteggi.id_seasonfk = seas.id_s), 0) AS punteggio, user.nazione_fk FROM (SELECT utenti.id, utenti.soldi, utenti.salt, utenti.nazione_fk, utenti.referral FROM utenti WHERE username = ? AND password = ?) AS user, (SELECT Max(season.id) AS id_s FROM season) AS seas;";
-        
-        if ($stmt = $GLOBALS['connessione']->prepare($query)) {
-            $stmt->bind_param('ss', $username, $password);
-            if ($stmt->execute()) {
-                $stmt->store_result();
-                $stmt->bind_result($this->id_user, $this->money, $this->salt, $this->referral, $this->season, $this->selected_player, $this->selected_bus, $this->score, $this->nazione);
-                $stmt->fetch();
-                $this->salt = self::getSaltFromId_Db($this->id_user);
-                if (isset($this->id_user)) {
-                    self::set_last_login_Db($this->id_user);
-                    if ($this->salt == '') {
-                        self::updateSalt_db($this->id_user);
-                        $this->salt = self::getSaltFromId_Db($this->id_user);
-                    }
-                    /*if(self::checkBoughtSkins($this->id_user) == 0){
-                        self::createDefaultItem($username, $password);
-                    }*/
-                    return true;
-                } else {
-                    return false;
+        $response = $GLOBALS['utils']->query($query, array("username" => $username, "password" => $password));
+
+        if (count($response) > 0) {
+            $this->id_user = $response[0]['id'];
+            $this->money = $response[0]['soldi'];
+            $this->salt = $response[0]['salt'];
+            $this->referral = $response[0]['referral'];
+            $this->season = $response[0]['seasonc'];
+            $this->selected_player = $response[0]['player'];
+            $this->selected_bus = $response[0]['bus'];
+            $this->score = $response[0]['punteggio'];
+            $this->nazione = $response[0]['nazione_fk'];
+
+            if (isset($this->id_user)) {
+                self::set_last_login_Db($this->id_user);
+                if ($this->salt == '') {
+                    self::updateSalt_db($this->id_user);
+                    $this->salt = self::getSaltFromId_Db($this->id_user);
                 }
+                return true;
             }
         }
+        
         return false;
     }
 
@@ -126,7 +126,7 @@ class user
         $query = "SELECT version.id AS id_v FROM version, utenti WHERE utenti.username = ? AND password=? AND version.versione = ? AND version.piattaforma = ?";
         $id_vers = $GLOBALS['utils']->query($query, array('username' => $username, 'password' => $password, 'versione' => $versione, 'dispositivo' => $dispositivo));
 
-        if (count($id_vers)>0) {
+        if (count($id_vers) > 0) {
             $id_vers = $id_vers[0]['id_v'];
         }
 

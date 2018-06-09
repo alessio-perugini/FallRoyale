@@ -18,9 +18,12 @@
                         $result = $stmt->get_result();
                         $outp = $result->fetch_all(MYSQLI_ASSOC);
                         return $outp;
+                    } else {
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
         public function refValues($arr)
