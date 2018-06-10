@@ -250,3 +250,7 @@ CREATE TABLE inviti(
 );
 
 ALTER TABLE utenti ADD COLUMN referral TEXT;
+
+-- modifica reedem con aggiunta di riscattare le skin
+ALTER TABLE codici ADD COLUMN skin_fk INT;
+ALTER TABLE codici ADD CONSTRAINT fk_codici_skin_fk FOREIGN KEY (skin_fk) REFERENCES items(id) ON UPDATE CASCADE ON DELETE CASCADE;
