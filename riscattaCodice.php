@@ -1,7 +1,7 @@
 <?php
 require_once('includes/config.php');
 header("Content-Type: application/json; charset=UTF-8");
-//da migliorare codice di merda
+//da migliorare codice di merda da aggiungere i controlli con l'attrivbuto tipo codice che sta sulla query
 $username = $_POST['usern'];
 $password = $_POST['password'];
 $codice = $_POST['codice'];
