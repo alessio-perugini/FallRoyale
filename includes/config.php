@@ -6,10 +6,10 @@ session_start();
 date_default_timezone_set('Europe/London');
 
 //database credentials
-define('DBHOST','localhost');
-define('DBUSER','root');
-define('DBPASS','RetMyuz1');
-define('DBNAME','fallroyale');
+define('DBHOST', 'localhost');
+define('DBUSER', 'root');
+define('DBPASS', '');
+define('DBNAME', 'hektor_test');
 
 
 // Create connection
@@ -18,19 +18,12 @@ $connessione->set_charset('utf8mb4');
 // Check connection
 if (!$connessione) {
     die("Connection failed: " . mysqli_connect_error());
-		mysqli_close($connessione);
+    mysqli_close($connessione);
 }
 
-try {
-
-	//create PDO connection
-	$db = new PDO("mysql:host=".DBHOST.";dbname=".DBNAME, DBUSER, DBPASS);
-	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-} catch(PDOException $e) {
-	//show error
-    echo '<p class="bg-danger">'.$e->getMessage().'</p>';
-    exit;
-}
-
-?>
+require_once('classi/user.php');
+$user = new user();
+require_once('classi/classifica.php');
+$classifica = new classifica($connessione);
+require_once('classi/utils.php');
+$utils = new utils($connessione);
