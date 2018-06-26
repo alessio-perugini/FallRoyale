@@ -1,6 +1,6 @@
 <?php
 require_once("includes/config.php");
-//header("Content-Type: application/json; charset=UTF-8");
+header("Content-Type: application/json; charset=UTF-8");
 $username = $_POST['usern'];
 $password = $_POST['password'];
 $id_ruota = (int)$_POST['ruota'];
