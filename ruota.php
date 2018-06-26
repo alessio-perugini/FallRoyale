@@ -52,16 +52,12 @@ function estrazionePremio($ruota, $id_utente)
 {
     $estrazione = rand(0, count($ruota)-1);
     //controllo vittorie max
-    if (!checkLimitReward($ruota[$estrazione], $id_utente)) {
-        //estrai quello che hai
-        return $ruota[$estrazione];
-    } else {
-        //vai al next
+    if (checkLimitReward($ruota[$estrazione], $id_utente)) {
         do {
             $estrazione = ($estrazione + 1 == count($ruota) ? 0 : $estrazione + 1);
         } while (checkLimitReward($ruota[$estrazione], $id_utente));
-        return $ruota[$estrazione];
     }
+    return $ruota[$estrazione];
 }
 
 //inserimento log
