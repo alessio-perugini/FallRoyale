@@ -19,5 +19,5 @@ if (strlen($new_username) >= 3 && strlen($new_username) <= 20) {
 function setNewUsername($username, $password, $new_username)
 {
     $query = "UPDATE utenti SET username = ? WHERE username = ? AND password = ?";
-    return $GLOBALS['utils']->query($query, array('username' => $username, 'pw' => $password, 'new_username' => $new_username), false);
+    return $GLOBALS['utils']->query($query, array('new_username' => $new_username, 'username' => $username, 'pw' => $password), false);
 }
