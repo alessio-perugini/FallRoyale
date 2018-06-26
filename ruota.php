@@ -6,7 +6,7 @@ $password = $_POST['password'];
 $id_ruota = (int)$_POST['ruota'];
 
 //Costanti
-$limit_daily_spins = 200;
+$limit_daily_spins = 2;
 
 if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user, $limit_daily_spins)) {
     $ruota = getRuota($id_ruota);
