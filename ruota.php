@@ -7,14 +7,21 @@ $id_ruota = (int)$_POST['ruota'];
 
 //Costanti
 $limit_daily_spins = 2;
+$response = array('quantita' => -1, 'tipo_valuta' => -1, 'item' => '', 'errore' => '');
 
 if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user, $limit_daily_spins)) {
     $ruota = getRuota($id_ruota);
     $premio_estratto = estrazionePremio($ruota, $user->id_user);
     setLogRuota($premio_estratto['id_spicchio'], $user->id_user);
     setReward($premio_estratto, $user->id_user);
-    echo json_encode(array('quantita' => $premio_estratto['valuta'], 'tipo_valuta' => $premio_estratto['tipo_valuta'], 'item' => $premio_estratto['codice']));
+    $response['quantita'] = $premio_estratto['valuta'];
+    $response['tipo_valuta'] = $premio_estratto['tipo_valuta'];
+    $response['item'] = $premio_estratto['codice'];
+} else {
+    $response['errore'] = 'Hai raggiunto gli spin massimi giornalieri';
 }
+
+echo json_encode($response);
 
 //controllo limite daily
 function Check_Daily_Spin_Limit($id_utente, $limit_daily_spins)
