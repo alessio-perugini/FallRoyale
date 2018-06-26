@@ -1,16 +1,17 @@
 <?php
 require_once("includes/config.php");
+//header("Content-Type: application/json; charset=UTF-8");
 $username = $_POST['usern'];
 $password = $_POST['password'];
-$id_ruota = $_POST['ruota'];
+$id_ruota = (int)$_POST['ruota'];
 
 //Costanti
-$limit_daily_spins = 2;
+$limit_daily_spins = 200;
 
 if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user, $limit_daily_spins)) {
     $ruota = getRuota($id_ruota);
-    $premio_estratto = estrazionePremio($ruota);
-    setLogRuota($id_ruota, $premio_estratto['id_premio'], $user->id_user);
+    $premio_estratto = estrazionePremio($ruota, $user->id_user);
+    setLogRuota($premio_estratto['id_spicchio'], $user->id_user);
     setReward($premio_estratto, $user->id_user);
     echo json_encode(array('quantita' => $premio_estratto['valuta'], 'tipo_valuta' => $premio_estratto['tipo_valuta'], 'item' => $premio_estratto['codice']));
 }
@@ -28,27 +29,47 @@ function Check_Daily_Spin_Limit($id_utente, $limit_daily_spins)
 //lettura ruota
 function getRuota($ruota)
 {
-    $query = "SELECT premi.id as id_premio, premi.valuta, premi.tipo_valuta, items.id as id_item, items.codice FROM spicchi_ruote, premi LEFT JOIN items ON premi.id_item_fk = items.id WHERE spicchi_ruote.id_ruota_fk = ? AND premi.id = spicchi_ruote.id_premio_fk ";
+    $query = "SELECT spicchi_ruote.id as id_spicchio, premi.id as id_premio, premi.valuta, premi.tipo_valuta, items.id as id_item, items.codice FROM spicchi_ruote, premi LEFT JOIN items ON premi.id_item_fk = items.id WHERE spicchi_ruote.id_ruota_fk = ? AND premi.id = spicchi_ruote.id_premio_fk ";
 
     $outp = $GLOBALS['utils']->query($query, array('ruota' => $ruota));
 
     return $outp;
 }
 
-//estrazione premio + controllo di vittorie massime
-function estrazionePremio($ruota)
+//controllo se ha superato il limite di estrazione daily o week
+function checkLimitReward($ruota, $id_utente)
 {
-    //controllo vittorie max
+    $query = "SELECT limit_day.c as daily, limit_week.c as weekly 
+    FROM (SELECT COUNT(*) as c FROM log_ruota WHERE data_spin > DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY) AND id_spicchio_fk = ?) as limit_day, (SELECT COUNT(*) as c FROM log_ruota WHERE data_spin > DATE_SUB(CURRENT_DATE, INTERVAL 1 WEEK) AND id_spicchio_fk = ?) as limit_week, ((SELECT IFNULL(day_limit, 0) day_limit, IFNULL(week_limit, 0) week_limit FROM limiti_estrazioni WHERE spicchio_ruota_fk = ?) UNION (SELECT 0 day_limit, 0 week_limit) LIMIT 1) AS general_limits
+    WHERE limit_week.c < IF(general_limits.week_limit = 0, limit_week.c + 1, general_limits.week_limit) AND limit_day.c < IF(general_limits.day_limit = 0, limit_day.c + 1, general_limits.day_limit)";
+    
+    $limits = $GLOBALS['utils']->query($query, array('id_spicchio' => $ruota['id_spicchio'], 'id_spicchio2' => $ruota['id_spicchio'], 'id_spicchio3' => $ruota['id_spicchio']));
+    return (count($limits) > 0) ? false : true; //se non ritorna item ha superato il limite
+}
 
-    return $ruota[rand(0, count($ruota)-1)];
+//estrazione premio + controllo di vittorie massime
+function estrazionePremio($ruota, $id_utente)
+{
+    $estrazione = rand(0, count($ruota)-1);
+    //controllo vittorie max
+    if (!checkLimitReward($ruota[$estrazione], $id_utente)) {
+        //estrai quello che hai
+        return $ruota[$estrazione];
+    } else {
+        //vai al next
+        do {
+            $estrazione = ($estrazione + 1 == count($ruota) ? 0 : $estrazione + 1);
+        } while (checkLimitReward($ruota[$estrazione], $id_utente));
+        return $ruota[$estrazione];
+    }
 }
 
 //inserimento log
-function setLogRuota($id_ruota, $id_premio, $id_utente)
+function setLogRuota($id_spicchio, $id_utente)
 {
-    $query = "INSERT INTO log_ruota (id_ruota_fk, id_premio_vinto_fk, id_utente_fk) VALUES(?, ?, ?)";
+    $query = "INSERT INTO log_ruota (id_spicchio_fk, id_utente_fk) VALUES(?, ?)";
 
-    $GLOBALS['utils']->query($query, array('ruota' => $id_ruota, 'premio' => $id_premio, 'utente' => $id_utente), false);
+    $GLOBALS['utils']->query($query, array('id_spicchio' => $id_spicchio, 'utente' => $id_utente), false);
 }
 
 //assegnamento premio
