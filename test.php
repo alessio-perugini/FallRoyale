@@ -158,6 +158,23 @@ require_once('includes/config.php');
             </div>
             <hr>            
         </form>
+        <center><b>Get end season items</b></center>
+        <form role="form" method="post" action="getNewSeasonReward.php" autocomplete="off">
+            <div class="form-group">
+                <input type="text" name="usern" id="usern" class="form-control input-lg" placeholder="User Name" value="junkex2">
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" id="password" class="form-control input-lg" placeholder="Password" value="asd1asd">
+            </div>
+            <div class="form-group">
+                <input type="text" name="season" id="season" class="form-control input-lg" placeholder="season" value="2">
+            </div>
+            <div class="row">
+                <div class="col-xs-6 col-md-6"><input type="submit" name="submit" value="Testa" class="btn btn-primary btn-block btn-lg"></div>
+            </div>
+            <hr>            
+        </form>
         <center><b>changeNazione.php</b></center>
         <form role="form" method="post" action="changeNazione.php" autocomplete="off">
             <div class="form-group">
