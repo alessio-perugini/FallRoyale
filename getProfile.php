@@ -7,7 +7,7 @@ $infogen = getSoldiAndCurrentSkin($nome_profilo);
 
 //TODO CREARE UNA QUERY UNICA
 if (isset($infogen['id_u'])) {
-    $punteggi = getBestScore($infogen['id_u']);
+    $punteggi = getBestScore($nome_profilo);
     $skins = getSkinBought($infogen['id_u']);
     echo json_encode(array('info' => array( 'soldi' => $infogen['soldi'], 'player_s' => $infogen['player_s'], 'bus_s' => $infogen['bus_s'], 'nazione' => $infogen['nazione']), 'score' => $punteggi, 'skins' => $skins)/*)*/);
 }
