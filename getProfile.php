@@ -24,7 +24,7 @@ function getBestScore($id_utente)
 {
     $query = "CALL ClassificheTutteSeason(?,?,?,?);";
 
-    $outp = $GLOBALS['utils']->query($query, array('inizio' => 1, 'fine' => -1, 'valore' => 0, 'utente' => '89oinotna'), true, true);
+    $outp = $GLOBALS['utils']->query($query, array('inizio' => 1, 'fine' => -1, 'valore' => 0, 'utente' => $id_utente), true, true);
 
     return (count($outp) > 0) ? $outp : null;
 }
