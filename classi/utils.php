@@ -46,7 +46,15 @@
                 }
             } while ($stmt->more_results() && $stmt->next_result());
 
-            return $outp;
+            //toglie la tipizzazzione array di array
+            $output = array();
+            for ($j = 0; $j < count($outp); $j++) {
+                for ($k = 0; $k < count($outp[$j]); $k++) {
+                    $output[$j] = $outp[$j][$k];
+                }
+            }
+
+            return $output;
         }
 
         public function refValues($arr)

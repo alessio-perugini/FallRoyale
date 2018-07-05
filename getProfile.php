@@ -1,13 +1,10 @@
 <?php require_once('includes/config.php');
-//header("Content-Type: application/json; charset=UTF-8");
+header("Content-Type: application/json; charset=UTF-8");
 
 $nome_profilo = $_POST['profilo'];
 
 $infogen = getSoldiAndCurrentSkin($nome_profilo);
 
-$a = $utils->query("CALL ClassificheTutteSeason(?,?,?,?);", array('inizio' => 1, 'fine' => -1, 'valore' => 0, 'utente' => '89oinotna'), true, true);
-
-var_dump($a);
 //TODO CREARE UNA QUERY UNICA
 if (isset($infogen['id_u'])) {
     $punteggi = getBestScore($infogen['id_u']);
@@ -25,11 +22,9 @@ function getSoldiAndCurrentSkin($username)
 
 function getBestScore($id_utente)
 {
-    $query = "SELECT punteggi.valore as score, punteggi.id_seasonfk as season FROM punteggi WHERE punteggi.id_utentefk = ?";
-    
-    $outp = $GLOBALS['utils']->query($query, array('id_utente' => $id_utente));
+    $query = "CALL ClassificheTutteSeason(?,?,?,?);";
 
-    //$output = $GLOBALS['utils']->query("CALL ClassificheTutteSeason(?,?,?,?);", array('inizio' => 1, 'fine' => -1, 'valore' => 0, 'utente' => '89oinotna'), true, true);
+    $outp = $GLOBALS['utils']->query($query, array('inizio' => 1, 'fine' => -1, 'valore' => 0, 'utente' => '89oinotna'), true, true);
 
     return (count($outp) > 0) ? $outp : null;
 }
