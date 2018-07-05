@@ -8,7 +8,7 @@ $season = $_POST['season'];
 
 if ($user->login($username, $pw)) {
     $outp = reward($user->id_user, $season);
-    echo json_encode($outp);
+    echo json_encode(array('rewards' => $outp));
 }
 
 function reward($id_utente, $season)
