@@ -7,16 +7,18 @@ $id_ruota = (int)$_POST['ruota'];
 
 //Costanti
 $limit_daily_spins = 2;
-$response = array('quantita' => -1, 'tipo_valuta' => -1, 'item' => '', 'errore' => '');
+$vittoria = array('quantita' => -1, 'tipo_valuta' => -1, 'item' => '');
+$response = array('info' => array(), 'reward' => $vittoria, 'errore' => '');
 
-if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user, $limit_daily_spins)) {
+if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user, $limit_daily_spins, $id_ruota)) {
     $ruota = getRuota($id_ruota);
     $premio_estratto = estrazionePremio($ruota, $user->id_user);
     setLogRuota($premio_estratto['id_spicchio'], $user->id_user);
     setReward($premio_estratto, $user->id_user);
-    $response['quantita'] = $premio_estratto['valuta'];
-    $response['tipo_valuta'] = $premio_estratto['tipo_valuta'];
-    $response['item'] = $premio_estratto['codice'];
+    $response['info'] = $ruota;
+    $response['reward']['quantita'] = $premio_estratto['valuta'];
+    $response['reward']['tipo_valuta'] = $premio_estratto['tipo_valuta'];
+    $response['reward']['item'] = $premio_estratto['codice'];
 } else {
     $response['errore'] = 'Hai raggiunto gli spin massimi giornalieri';
 }
@@ -24,11 +26,11 @@ if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user
 echo json_encode($response);
 
 //controllo limite daily
-function Check_Daily_Spin_Limit($id_utente, $limit_daily_spins)
+function Check_Daily_Spin_Limit($id_utente, $limit_daily_spins, $id_ruota)
 {
-    $query = "SELECT count(*) as n FROM log_ruota WHERE id_utente_fk = ? AND data_spin > CURRENT_DATE";
+    $query = "SELECT count(*) as n FROM log_ruota, spicchi_ruote WHERE id_utente_fk = ? AND log_ruota.id_spicchio_fk = spicchi_ruote.id AND spicchi_ruote.id_ruota_fk = ? AND data_spin > CURRENT_DATE";
 
-    $outp = $GLOBALS['utils']->query($query, array('id_user' => $id_utente));
+    $outp = $GLOBALS['utils']->query($query, array('id_user' => $id_utente, 'ruota' => $id_ruota));
 
     return (count($outp) > 0) ? ($outp[0]['n'] >= $limit_daily_spins) ? true : false : false;
 }
@@ -36,7 +38,7 @@ function Check_Daily_Spin_Limit($id_utente, $limit_daily_spins)
 //lettura ruota
 function getRuota($ruota)
 {
-    $query = "SELECT spicchi_ruote.id as id_spicchio, premi.id as id_premio, premi.valuta, premi.tipo_valuta, items.id as id_item, items.codice FROM spicchi_ruote, premi LEFT JOIN items ON premi.id_item_fk = items.id WHERE spicchi_ruote.id_ruota_fk = ? AND premi.id = spicchi_ruote.id_premio_fk ";
+    $query = "SELECT spicchi_ruote.id as id_spicchio, IF(premi.valuta IS NULL, -1, premi.valuta) as valuta, IF(premi.tipo_valuta IS NULL, -1, premi.tipo_valuta) as tipo_valuta, IF(items.id IS NULL, -1, items.id) as id_item, IF(items.codice IS NULL, '', items.codice) as codice FROM spicchi_ruote, premi LEFT JOIN items ON premi.id_item_fk = items.id WHERE spicchi_ruote.id_ruota_fk = ? AND premi.id = spicchi_ruote.id_premio_fk ";
 
     $outp = $GLOBALS['utils']->query($query, array('ruota' => $ruota));
 
@@ -78,7 +80,7 @@ function setLogRuota($id_spicchio, $id_utente)
 //assegnamento premio
 function setReward($premio, $id_utente)
 {
-    if (isset($premio['valuta'])) {
+    if ($premio['valuta'] != -1) {
         switch ($premio['tipo_valuta']) {
             case 1: //soldi
                 $query = "UPDATE utenti SET soldi = soldi + ? WHERE id = ?";
