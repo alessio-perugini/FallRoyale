@@ -6,10 +6,10 @@ session_start();
 date_default_timezone_set('Europe/London');
 
 //database credentials
-define('DBHOST','localhost');
-define('DBUSER','root');
-define('DBPASS','');
-define('DBNAME','hektor_test');
+define('DBHOST', 'localhost');
+define('DBUSER', 'root');
+define('DBPASS', '');
+define('DBNAME', 'hektor_test');
 
 
 // Create connection
@@ -18,9 +18,8 @@ $connessione->set_charset('utf8mb4');
 // Check connection
 if (!$connessione) {
     die("Connection failed: " . mysqli_connect_error());
-		mysqli_close($connessione);
+    mysqli_close($connessione);
 }
 
 require_once('../classi/user.php');
 $user = new user();
-?>
