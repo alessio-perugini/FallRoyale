@@ -20,7 +20,7 @@ if ($user->login($username, $password) && !Check_Daily_Spin_Limit($user->id_user
     $response['reward']['tipo_valuta'] = $premio_estratto['tipo_valuta'];
     $response['reward']['item'] = $premio_estratto['codice'];
 } else {
-    $response['errore'] = 'Hai raggiunto gli spin massimi giornalieri';
+    $response['errore'] = 'Maximum daily spin reached';
 }
 
 echo json_encode($response);
