@@ -25,7 +25,7 @@ if (checkMiniumVersion($versione, $user->id_user)) {
         if (isset($esiste)) {
             updateScore($score, $versione, $username, $password, $esiste);
         } else {
-            addSCore($score, $username, $password);
+            addSCore($score, $username, $password, $versione);
         } //Con le versioni nuove il punteggio lo crea a tutti e lo mette a 0 quindi non serve più
     }
 }
@@ -54,7 +54,7 @@ function checkScoreExistance($username, $password)
 {
     $query = "SELECT punteggi.id AS id_p FROM(SELECT season.id as id_s, season.versione_min_android, season.versione_min_apple FROM season ORDER BY id_s DESC LIMIT 1) AS seas, (SELECT utenti.versione, utenti.id, utenti.dispositivo FROM utenti WHERE utenti.username = ? AND utenti.password = ? ) AS user, punteggi WHERE punteggi.id_utentefk = user.id AND punteggi.id_seasonfk = seas.id_s AND id_seasonfk = seas.id_s AND IF(user.dispositivo = 'Android', user.versione >= seas.versione_min_android, user.versione >= seas.versione_min_apple)";
     $check = $GLOBALS['utils']->query($query, array('username' => $username, 'password' => $password));
-    return (count($check) > 0) ? $check[0]['id_p'] : '';
+    return (count($check) > 0) ? $check[0]['id_p'] : null;
 }
 
 function updateScore($score, $versione, $username, $password, $esiste)
@@ -65,11 +65,11 @@ function updateScore($score, $versione, $username, $password, $esiste)
 }
 
 
-function addSCore($score, $username, $password)
+function addSCore($score, $username, $password, $versione)
 {
-    $query = "INSERT INTO punteggi (valore, version_fk, id_utenteFK,id_seasonFK,data) VALUES (?, (SELECT version.id FROM version, utenti WHERE utenti.username = ? AND version.versione = ? AND piattaforma = utenti.dispositivo), (SELECT id FROM utenti WHERE username= ? and password= ?),(SELECT MAX(id) FROM season),now());";
+    $query = "INSERT INTO punteggi (valore, version_fk, id_utenteFK, id_seasonFK, data) VALUES (?, (SELECT version.id FROM version, utenti WHERE utenti.username = ? AND version.versione = ? AND piattaforma = utenti.dispositivo), (SELECT id FROM utenti WHERE username= ? and password= ?) , (SELECT MAX(id) FROM season), now());";
 
-    $GLOBALS['utils']->query($query, array('score' => $score, 'versione' => $versione, 'username' => $username, 'password' => $password), false);
+    $GLOBALS['utils']->query($query, array('score' => $score, 'username2' => $username, 'versione' => $versione, 'username' => $username, 'password' => $password), false);
 }
 
 
